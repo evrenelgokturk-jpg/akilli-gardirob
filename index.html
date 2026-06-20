@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akıllı Gardırop v3.5</title>
+    <title>Akıllı Gardırop v4.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -41,7 +41,10 @@
                     <option value="Sağ Taraf">Sağ Taraf</option>
                 </select>
 
-                <input type="url" id="itemImage" placeholder="Fotoğraf Linki (İsteğe Bağlı)" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-zinc-600 md:col-span-2">
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-zinc-400 mb-2 font-mono">📸 Kıyafet Fotoğrafı (Çek veya Galeriden Seç)</label>
+                    <input type="file" id="itemFile" accept="image/*" class="w-full text-xs text-zinc-400 bg-zinc-950 border border-zinc-800 rounded-xl p-3 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 cursor-pointer">
+                </div>
                 
                 <button type="submit" class="bg-white text-zinc-950 font-bold rounded-xl text-sm p-3 hover:bg-zinc-200 transition duration-300 md:col-span-2 cursor-pointer">Buluta Kaydet</button>
             </form>
@@ -86,7 +89,7 @@
         const comboResult = document.getElementById("comboResult");
 
         let allClothes = [];
-        // Kıyafet resmi yoksa gösterilecek şık siyah bir tişört silüeti
+        // Fotoğraf çekilmediyse duracak şık varsayılan görsel
         const defaultImg = "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=200&auto=format&fit=crop&q=60";
 
         // VERİLERİ CANLI ÇEKME
@@ -121,14 +124,35 @@
             });
         });
 
-        // VERİ EKLEME
+        // FOTOĞRAFI BASE64 FORMATINA ÇEVİRİP BULUTA ATMA FONKSİYONU
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             const name = document.getElementById("itemName").value;
             const category = document.getElementById("itemCategory").value;
             const shelf = document.getElementById("itemShelf").value;
             const position = document.getElementById("itemPosition").value;
-            const image = document.getElementById("itemImage").value;
+            const fileInput = document.getElementById("itemFile");
+
+            let imageData = defaultImg;
+
+            // Eğer kullanıcı bir fotoğraf seçtiyse veya çektiyse onu oku
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                
+                // Resmi Firebase için optimize edip metne çeviren sihirli okuyucu
+                const convertToBase64 = (file) => new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+                
+                try {
+                    imageData = await convertToBase64(file);
+                } catch (error) {
+                    console.error("Fotoğraf dönüştürme hatası:", error);
+                }
+            }
 
             try {
                 await db.collection("clothes").add({
@@ -136,7 +160,7 @@
                     category: category,
                     shelf: shelf,
                     position: position,
-                    image: image || defaultImg,
+                    image: imageData,
                     createdAt: new Date().getTime()
                 });
                 form.reset();
@@ -152,7 +176,7 @@
             }
         };
 
-        // KOMBİN YAPICI (ÜST ÜSTE VE MİNİK YAZILI)
+        // KOMBİN YAPICI (TAM İSTEDİĞİN GİBİ ÜST ÜSTE, MİNİK VE YAN YANA YAZILI)
         comboBtn.addEventListener("click", () => {
             if (allClothes.length === 0) return alert("Gardırop boş!");
 
@@ -166,9 +190,28 @@
             const secilenUst = ustler[Math.floor(Math.random() * ustler.length)];
             const secilenAlt = altlar[Math.floor(Math.random() * altlar.length)];
 
-            // Üst üste sıfır boşlukla yapışan tertemiz kutular
+            // Üst üste sıfır boşlukla yapışan tertemiz kutular, minik yazılar yan tarafta
             comboResult.innerHTML = `
                 <div class="w-full flex flex-col">
                     <div class="w-full flex items-center bg-zinc-900 border border-zinc-800 rounded-t-xl p-2">
                         <img src="${secilenUst.image || defaultImg}" class="w-12 h-12 object-cover rounded-md bg-zinc-950 border border-zinc-800 flex-shrink-0">
-                        <div class="ml-
+                        <div class="ml-3 flex flex-col justify-center leading-tight">
+                            <span class="text-[11px] font-bold text-white">${secilenUst.name}</span>
+                            <span class="text-[9px] text-zinc-500 font-mono">Konum: Raf ${secilenUst.shelf} (${secilenUst.position})</span>
+                        </div>
+                    </div>
+
+                    <div class="w-full flex items-center bg-zinc-900 border-x border-b border-zinc-800 rounded-b-xl p-2">
+                        <img src="${secilenAlt.image || defaultImg}" class="w-12 h-12 object-cover rounded-md bg-zinc-950 border border-zinc-800 flex-shrink-0">
+                        <div class="ml-3 flex flex-col justify-center leading-tight">
+                            <span class="text-[11px] font-bold text-white">${secilenAlt.name}</span>
+                            <span class="text-[9px] text-zinc-500 font-mono">Konum: Raf ${secilenAlt.shelf} (${secilenAlt.position})</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            comboResult.classList.remove("hidden");
+        });
+    </script>
+</body>
+</html>
