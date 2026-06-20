@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Akıllı Gardırop v2.0 - Cloud</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     </style>
@@ -12,7 +14,7 @@
 <body class="bg-zinc-950 text-zinc-100 min-h-screen pb-12">
 
     <header class="border-b border-zinc-800 sticky top-0 bg-zinc-950/80 backdrop-blur-md z-50 px-6 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-tracking-widest uppercase tracking-wider font-bold text-white">AKILLI GARDIROP</h1>
+        <h1 class="text-xl font-bold tracking-wider uppercase text-white">AKILLI GARDIROP</h1>
         <span class="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full font-mono border border-emerald-500/20">Bulut Aktif</span>
     </header>
 
@@ -20,7 +22,7 @@
         <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl">
             <h2 class="text-lg font-semibold mb-4 text-zinc-300 flex items-center gap-2">✨ Yeni Kıyafet Ekle</h2>
             <form id="clothingForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" id="itemName" placeholder="Kıyafet Adı (Önizleme URL)" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-zinc-600 transition" required>
+                <input type="text" id="itemName" placeholder="Kıyafet Adı (Örn: Siyah Zara Tişört)" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-zinc-600 transition" required>
                 <select id="itemCategory" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-zinc-600 transition" required>
                     <option value="">Kategori Seçin</option>
                     <option value="Üst Giyim">Üst Giyim</option>
@@ -40,11 +42,8 @@
         </section>
     </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // Dün akşam senin Firebase'den aldığımız o sihirli config kodları:
+    <script>
+        // Senin Firebase Sihirli Config Bilgilerin
         const firebaseConfig = {
             apiKey: "AIzaSyA7o96OrqwYXWby-TH7EPbdoXZo_kKscA",
             authDomain: "akilli-gardirob.firebaseapp.com",
@@ -55,33 +54,31 @@
             measurementId: "G-GWM8N1FE3M"
         };
 
-        // Sistemi Başlat
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const clothesCollection = collection(db, "clothes");
+        // Firebase Başlatma
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        // HTML Elemanları
+        // Elemanlar
         const form = document.getElementById("clothingForm");
         const grid = document.getElementById("wardrobeGrid");
-        const loadingText = document.getElementById("loadingText");
 
-        // BULUTTAN VERİLERİ ANLIK ÇEKME (TELEFON-BİLGİSAYAR CANLI EŞİTLEME)
-        onSnapshot(clothesCollection, (snapshot) => {
+        // BULUTTAN VERİLERİ CANLI ÇEKME
+        db.collection("clothes").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
             grid.innerHTML = "";
             if (snapshot.empty) {
                 grid.innerHTML = `<div class="col-span-full text-center text-zinc-600 text-sm py-8">Gardırop şu an boş. İlk kıyafetini ekle!</div>`;
                 return;
             }
 
-            snapshot.forEach((docSnap) => {
-                const item = docSnap.data();
-                const id = docSnap.id;
+            snapshot.forEach((doc) => {
+                const item = doc.data();
+                const id = doc.id;
 
                 const card = document.createElement("div");
                 card.className = "bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex flex-col justify-between group relative overflow-hidden transition hover:border-zinc-700 shadow-md";
                 card.innerHTML = `
                     <div>
-                        <span class="text-[10px] uppercase font-mono tracking-wider bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-md">${item.category}</span>
+                        <span class="text-[10px] uppercase font-mono tracking-wider bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-md">${item.category || 'Belirsiz'}</span>
                         <h3 class="text-sm font-medium text-white mt-2 break-all">${item.name}</h3>
                     </div>
                     <button onclick="deleteItem('${id}')" class="mt-4 text-xs text-zinc-500 hover:text-red-400 transition text-left cursor-pointer flex items-center gap-1">
@@ -90,34 +87,36 @@
                 `;
                 grid.appendChild(card);
             });
+        }, (error) => {
+            console.error("Firebase okuma hatası: ", error);
         });
 
-        // BULUTA YENİ KIYAFET EKLEME
+        // BULUTA VERİ EKLEME
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             const name = document.getElementById("itemName").value;
             const category = document.getElementById("itemCategory").value;
 
             try {
-                await addDoc(clothesCollection, {
+                await db.collection("clothes").add({
                     name: name,
                     category: category,
                     createdAt: new Date().getTime()
                 });
                 form.reset();
             } catch (error) {
-                console.error("Buluta kaydedilirken hata oluştu: ", error);
-                alert("Bir hata oluştu kanka, konsolu kontrol et.");
+                console.error("Buluta veri ekleme hatası: ", error);
+                alert("Veri eklenirken bir hata oluştu kanka!");
             }
         });
 
-        // KILAVUZ SİLME FONKSİYONU (Pencereye bağlama)
+        // BULUTTAN VERİ SİLME
         window.deleteItem = async (id) => {
-            if(confirm("Bu kıyafeti gardıroptan kaldırmak istediğine emin misin kanka?")) {
+            if(confirm("Bu kıyafeti silmek istediğine emin misin?")) {
                 try {
-                    await deleteDoc(doc(db, "clothes", id));
+                    await db.collection("clothes").doc(id).delete();
                 } catch (error) {
-                    console.error("Silinirken hata oluştu: ", error);
+                    console.error("Silme hatası: ", error);
                 }
             }
         };
