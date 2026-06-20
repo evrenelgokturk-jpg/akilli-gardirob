@@ -3,220 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akıllı Gardırop</title>
+    <title>Akıllı Gardırop v2.0 - Cloud</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.5px; }
-        body { background-color: #fcfcfc; color: #111111; padding: 30px 20px; }
-        .container { max-width: 1100px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 40px; padding: 10px 0; border-bottom: 2px solid #111111; }
-        header h1 { font-size: 2.2rem; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; color: #111111; margin-bottom: 5px; }
-        header p { color: #666666; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
-        /* Kartların kenarları hafifçe yumuşatıldı */
-        .card { background-color: #ffffff; padding: 25px; border-radius: 12px; border: 1px solid #e5e5e5; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .card h2 { margin-bottom: 20px; color: #111111; font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #eeeeee; padding-bottom: 10px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #555555; font-size: 0.8rem; text-transform: uppercase; font-weight: bold; }
-        /* Input ve Select kenarları yumuşatıldı */
-        input, select { width: 100%; padding: 12px; background-color: #ffffff; border: 1px solid #cccccc; border-radius: 8px; color: #111111; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
-        input:focus, select:focus { border-color: #111111; }
-        input[type="file"] { padding: 5px; background-color: transparent; border: none; font-size: 0.85rem; }
-        /* Buton kenarları yumuşatıldı */
-        button { width: 100%; padding: 14px; background-color: #111111; color: #ffffff; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: background 0.2s; }
-        button:hover { background-color: #333333; }
-        .kombin-sonuc { margin-top: 20px; padding: 20px; background-color: #f9f9f9; border-radius: 8px; border-left: 4px solid #111111; display: none; }
-        .liste { max-height: 450px; overflow-y: auto; list-style: none; }
-        .liste-item { background-color: #ffffff; padding: 15px; border-bottom: 1px solid #eeeeee; display: flex; justify-content: space-between; align-items: center; }
-        .item-info { display: flex; align-items: center; gap: 20px; }
-        /* Fotoğraf ekleme ve envanter görsellerinin kenarları yumuşatıldı */
-        .item-img { width: 60px; height: 75px; border-radius: 6px; object-fit: cover; background-color: #f5f5f5; border: 1px solid #eaeaea; }
-        .kombin-gorseller { display: flex; gap: 25px; margin-top: 20px; justify-content: center; }
-        .kombin-img-box { text-align: center; }
-        /* Büyük kombin fotoğraflarının kenarları yumuşatıldı */
-        .kombin-img { width: 140px; height: 185px; border-radius: 10px; object-fit: cover; border: 1px solid #111111; background-color: #f5f5f5; }
-        .badge { padding: 3px 6px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin-left: 5px; border-radius: 4px; }
-        .badge-ust { background-color: #eaeaea; color: #333333; }
-        .badge-alt { background-color: #333333; color: #ffffff; }
-        .badge-raf { border: 1px solid #111111; background-color: transparent; color: #111111; }
-        .sil-btn { background: none; border: none; color: #999999; cursor: pointer; font-size: 0.8rem; text-transform: uppercase; width: auto; padding: 0; transition: color 0.2s; }
-        .sil-btn:hover { color: #ff3333; }
-        .qr-simulasyon { background-color: #f9f9f9; border: 1px dashed #cccccc; border-radius: 12px; }
-        .raf-gorsel-listesi { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     </style>
 </head>
-<body>
-<div class="container">
-    <header>
-        <h1>WARDROBE STUDIO</h1>
-        <p>Görsel Envanter & Kombin Yönetimi</p>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen pb-12">
+
+    <header class="border-b border-zinc-800 sticky top-0 bg-zinc-950/80 backdrop-blur-md z-50 px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-tracking-widest uppercase tracking-wider font-bold text-white">AKILLI GARDIROP</h1>
+        <span class="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full font-mono border border-emerald-500/20">Bulut Aktif</span>
     </header>
-    <div class="grid">
-        <div>
-            <div class="card">
-                <h2>➕ KOLEKSİYONA EKLE</h2>
-                <div class="form-group">
-                    <label for="item-name">Ürün Adı</label>
-                    <input type="text" id="item-name" placeholder="Örn: Desenli Oversize Gömlek">
-                </div>
-                <div class="form-group">
-                    <label for="item-type">Kategori</label>
-                    <select id="item-type">
-                        <option value="Üst">Üst Giyim</option>
-                        <option value="Alt">Alt Giyim</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="item-shelf">Raf Konumu (No)</label>
-                    <input type="number" id="item-shelf" placeholder="Örn: 3" min="1">
-                </div>
-                <div class="form-group">
-                    <label for="item-image">Ürün Görseli</label>
-                    <input type="file" id="item-image" accept="image/*">
-                </div>
-                <button onclick="kiyafetEkle()">Ürünü Arşive Ekle</button>
-            </div>
-            <div class="card qr-simulasyon">
-                <h2>📱 RAF TARAMA SİSTEMİ</h2>
-                <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 0;">
-                    <input type="number" id="scan-shelf" placeholder="Raf No girin">
-                    <button onclick="rafTara()" style="width: auto; white-space: nowrap;">Sorgula</button>
-                </div>
-                <div id="qr-sonuc" style="margin-top: 15px; font-size: 0.9rem; color: #555555;"></div>
-            </div>
-        </div>
-        <div>
-            <div class="card">
-                <h2>✨ AKILLI KOMBİN STÜDYOSU</h2>
-                <div class="form-group">
-                    <label for="kombin-ust">Üst Parça Seçimi</label>
-                    <select id="kombin-ust"><option value="">-- SEÇİNİZ --</option></select>
-                </div>
-                <div class="form-group">
-                    <label for="kombin-alt">Alt Parça Seçimi</label>
-                    <select id="kombin-alt"><option value="">-- SEÇİNİZ --</option></select>
-                </div>
-                <button onclick="kombinYap()">Kombini Oluştur</button>
-                <div id="kombin-sonuc-kutusu" class="kombin-sonuc">
-                    <p id="kombin-metni" style="font-size: 0.95rem; line-height: 1.6; color: #111111;"></p>
-                    <div class="kombin-gorseller" id="kombin-gorsel-alani"></div>
-                </div>
-            </div>
-            <div class="card">
-                <h2>📦 MEVCUT ENVANTER (<span id="toplam-urun">0</span>)</h2>
-                <ul id="envanter-listesi" class="liste"></ul>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    let gardirobim = JSON.parse(localStorage.getItem('gardirobim')) || [];
-    ekraniGuncelle();
 
-    function kiyafetEkle() {
-        const nameInput = document.getElementById('item-name');
-        const typeSelect = document.getElementById('item-type');
-        const shelfInput = document.getElementById('item-shelf');
-        const imageInput = document.getElementById('item-image');
+    <main class="max-w-4xl mx-auto px-4 mt-8 space-y-8">
+        <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="text-lg font-semibold mb-4 text-zinc-300 flex items-center gap-2">✨ Yeni Kıyafet Ekle</h2>
+            <form id="clothingForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" id="itemName" placeholder="Kıyafet Adı (Önizleme URL)" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-zinc-600 transition" required>
+                <select id="itemCategory" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-zinc-600 transition" required>
+                    <option value="">Kategori Seçin</option>
+                    <option value="Üst Giyim">Üst Giyim</option>
+                    <option value="Alt Giyim">Alt Giyim</option>
+                    <option value="Dış Giyim">Dış Giyim</option>
+                    <option value="Ayakkabı">Ayakkabı</option>
+                </select>
+                <button type="submit" class="bg-white text-zinc-950 font-medium rounded-xl text-sm p-3 hover:bg-zinc-200 transition duration-300 shadow-md cursor-pointer">Buluta Kaydet</button>
+            </form>
+        </section>
 
-        const name = nameInput.value.trim();
-        const type = typeSelect.value;
-        const shelf = shelfInput.value.trim();
-        const file = imageInput.files[0];
+        <section class="space-y-4">
+            <h2 class="text-lg font-semibold text-zinc-300 flex items-center gap-2">📦 Gardırobumuz</h2>
+            <div id="wardrobeGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div id="loadingText" class="col-span-full text-center text-zinc-500 text-sm py-8 font-mono">Buluttan veriler senkronize ediliyor...</div>
+            </div>
+        </section>
+    </main>
 
-        if (!name || !shelf) { alert('Lütfen zorunlu alanları doldurun.'); return; }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                kaydet(name, type, shelf, e.target.result);
+        // Dün akşam senin Firebase'den aldığımız o sihirli config kodları:
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7o96OrqwYXWby-TH7EPbdoXZo_kKscA",
+            authDomain: "akilli-gardirob.firebaseapp.com",
+            projectId: "akilli-gardirob",
+            storageBucket: "akilli-gardirob.appspot.com",
+            messagingSenderId: "801290029571",
+            appId: "1:801290029571:web:102b22c6423a92bca6dc36",
+            measurementId: "G-GWM8N1FE3M"
+        };
+
+        // Sistemi Başlat
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const clothesCollection = collection(db, "clothes");
+
+        // HTML Elemanları
+        const form = document.getElementById("clothingForm");
+        const grid = document.getElementById("wardrobeGrid");
+        const loadingText = document.getElementById("loadingText");
+
+        // BULUTTAN VERİLERİ ANLIK ÇEKME (TELEFON-BİLGİSAYAR CANLI EŞİTLEME)
+        onSnapshot(clothesCollection, (snapshot) => {
+            grid.innerHTML = "";
+            if (snapshot.empty) {
+                grid.innerHTML = `<div class="col-span-full text-center text-zinc-600 text-sm py-8">Gardırop şu an boş. İlk kıyafetini ekle!</div>`;
+                return;
             }
-            reader.readAsDataURL(file);
-        } else {
-            kaydet(name, type, shelf, 'https://via.placeholder.com/150/f5f5f5/999999?text=Görsel+Yok');
-        }
 
-        function kaydet(n, t, s, imgData) {
-            gardirobim.push({ id: Date.now(), name: n, type: t, shelf: s, image: imgData });
-            localStorage.setItem('gardirobim', JSON.stringify(gardirobim));
-            nameInput.value = ''; shelfInput.value = ''; imageInput.value = '';
-            ekraniGuncelle();
-        }
-    }
+            snapshot.forEach((docSnap) => {
+                const item = docSnap.data();
+                const id = docSnap.id;
 
-    function kiyafetSil(id) {
-        gardirobim = gardirobim.filter(item => item.id !== id);
-        localStorage.setItem('gardirobim', JSON.stringify(gardirobim));
-        ekraniGuncelle();
-    }
-
-    function ekraniGuncelle() {
-        const liste = document.getElementById('envanter-listesi');
-        const ustSelect = document.getElementById('kombin-ust');
-        const altSelect = document.getElementById('kombin-alt');
-        liste.innerHTML = '';
-        ustSelect.innerHTML = '<option value="">-- SEÇİNİZ --</option>';
-        altSelect.innerHTML = '<option value="">-- SEÇİNİZ --</option>';
-        document.getElementById('toplam-urun').innerText = gardirobim.length;
-        
-        gardirobim.forEach(item => {
-            const li = document.createElement('li');
-            li.className = 'liste-item';
-            const badgeClass = item.type === 'Üst' ? 'badge-ust' : 'badge-alt';
-            li.innerHTML = `
-                <div class="item-info">
-                    <img src="${item.image}" class="item-img">
+                const card = document.createElement("div");
+                card.className = "bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex flex-col justify-between group relative overflow-hidden transition hover:border-zinc-700 shadow-md";
+                card.innerHTML = `
                     <div>
-                        <strong style="font-weight:500;">${item.name}</strong> <br>
-                        <span class="badge ${badgeClass}" style="margin-left:0; margin-top:5px; display:inline-block;">${item.type}</span> 
-                        <span class="badge badge-raf">Raf ${item.shelf}</span>
+                        <span class="text-[10px] uppercase font-mono tracking-wider bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-md">${item.category}</span>
+                        <h3 class="text-sm font-medium text-white mt-2 break-all">${item.name}</h3>
                     </div>
-                </div>
-                <button class="sil-btn" onclick="kiyafetSil(${item.id})">Kaldır</button>`;
-            liste.appendChild(li);
-            
-            const option = document.createElement('option');
-            option.value = item.id; option.innerText = `${item.name} (Raf ${item.shelf})`;
-            if (item.type === 'Üst') { ustSelect.appendChild(option); } else { altSelect.appendChild(option); }
-        });
-    }
-
-    function kombinYap() {
-        const ustId = document.getElementById('kombin-ust').value;
-        const altId = document.getElementById('kombin-alt').value;
-        const sonucKutusu = document.getElementById('kombin-sonuc-kutusu');
-        const gorselAlani = document.getElementById('kombin-gorsel-alani');
-        
-        if (!ustId || !altId) { alert('Lütfen kombin için iki parçayı da seçin.'); return; }
-        
-        const u = gardirobim.find(item => item.id == ustId);
-        const a = gardirobim.find(item => item.id == altId);
-        
-        document.getElementById('kombin-metni').innerHTML = `<strong>KOMBİN DETAYI</strong><br><br>🖤 <strong>${u.name}</strong> -> Konum: <strong>Raf ${u.shelf}</strong><br>🖤 <strong>${a.name}</strong> -> Konum: <strong>Raf ${a.shelf}</strong>`;
-        
-        gorselAlani.innerHTML = `
-            <div class="kombin-img-box"><img src="${u.image}" class="kombin-img"><p style="font-size:0.75rem; color:#666; margin-top:8px; text-transform:uppercase;">Üst Giyim</p></div>
-            <div class="kombin-img-box"><img src="${a.image}" class="kombin-img"><p style="font-size:0.75rem; color:#666; margin-top:8px; text-transform:uppercase;">Alt Giyim</p></div>
-        `;
-        sonucKutusu.style.display = 'block';
-    }
-
-    function rafTara() {
-        const rafNo = document.getElementById('scan-shelf').value.trim();
-        const qrSonuc = document.getElementById('qr-sonuc');
-        if (!rafNo) return;
-        const u = gardirobim.filter(item => item.shelf == rafNo);
-        if (u.length === 0) { qrSonuc.innerHTML = `Mevcut konum boş: Raf ${rafNo}`; } 
-        else { 
-            qrSonuc.innerHTML = `<strong>RAF ${rafNo} İÇERİĞİ</strong>`;
-            const div = document.createElement('div');
-            div.className = 'raf-gorsel-listesi';
-            u.forEach(i => {
-                div.innerHTML += `<div style="text-align:center; font-size:0.75rem; color:#444;"><img src="${i.image}" class="item-img" title="${i.name}"><br>${i.name.substring(0,10)}...</div>`;
+                    <button onclick="deleteItem('${id}')" class="mt-4 text-xs text-zinc-500 hover:text-red-400 transition text-left cursor-pointer flex items-center gap-1">
+                        🗑️ Sil
+                    </button>
+                `;
+                grid.appendChild(card);
             });
-            qrSonuc.appendChild(div);
-        }
-    }
-</script>
+        });
+
+        // BULUTA YENİ KIYAFET EKLEME
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("itemName").value;
+            const category = document.getElementById("itemCategory").value;
+
+            try {
+                await addDoc(clothesCollection, {
+                    name: name,
+                    category: category,
+                    createdAt: new Date().getTime()
+                });
+                form.reset();
+            } catch (error) {
+                console.error("Buluta kaydedilirken hata oluştu: ", error);
+                alert("Bir hata oluştu kanka, konsolu kontrol et.");
+            }
+        });
+
+        // KILAVUZ SİLME FONKSİYONU (Pencereye bağlama)
+        window.deleteItem = async (id) => {
+            if(confirm("Bu kıyafeti gardıroptan kaldırmak istediğine emin misin kanka?")) {
+                try {
+                    await deleteDoc(doc(db, "clothes", id));
+                } catch (error) {
+                    console.error("Silinirken hata oluştu: ", error);
+                }
+            }
+        };
+    </script>
 </body>
 </html>
