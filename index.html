@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akıllı Gardırop v5.0</title>
+    <title>Tami Asistan v2.1 - Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -13,86 +13,77 @@
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen pb-16">
 
-    <header class="border-b border-zinc-800 sticky top-0 bg-zinc-950/80 backdrop-blur-md z-50 px-6 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold tracking-wider uppercase text-white">AKILLI GARDIROP</h1>
-        <span class="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full font-mono border border-emerald-500/20">● Çift Mod Kombin Aktif</span>
+    <header class="border-b border-zinc-800 sticky top-0 bg-zinc-950/90 backdrop-blur-md z-50 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <span id="cloudStatusDot" class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+            <h1 class="text-lg font-black tracking-widest text-white">tami <span class="text-lime-400 font-light text-sm">asistan</span></h1>
+        </div>
+        <button id="permissionBtn" class="text-[10px] bg-lime-400/10 text-lime-400 border border-lime-400/20 px-3 py-1 rounded-full font-mono hover:bg-lime-400 hover:text-zinc-950 transition cursor-pointer">
+            🔔 Bildirimleri Aktif Et
+        </button>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 mt-8 space-y-8">
-        
-        <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl">
-            <h2 class="text-md font-semibold mb-4 text-zinc-300">✨ Yeni Kıyafet Ekle</h2>
-            <form id="clothingForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" id="itemName" placeholder="Kıyafet Adı (Örn: Siyah Zara Tişört)" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-zinc-600" required>
-                
-                <select id="itemCategory" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-zinc-400 focus:outline-none focus:border-zinc-600" required>
-                    <option value="">Kategori Seçin</option>
-                    <option value="Üst Giyim">Üst Giyim</option>
-                    <option value="Alt Giyim">Alt Giyim</option>
-                    <option value="Dış Giyim">Dış Giyim</option>
-                    <option value="Ayakkabı">Ayakkabı</option>
-                </select>
+    <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
-                <input type="number" id="itemShelf" placeholder="Raf Numarası (Örn: 2)" min="1" max="10" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-zinc-600" required>
+        <div id="asistanKutusu" class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl shadow-xl">
+            <h2 class="text-xs font-bold text-lime-400 uppercase tracking-wider mb-2">🚨 Dijital Asistan Raporu</h2>
+            <p id="asistanMesaji" class="text-sm text-zinc-300">Sistem başlatılıyor, lütfen bekleyin...</p>
+        </div>
 
-                <select id="itemPosition" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-zinc-400 focus:outline-none focus:border-zinc-600" required>
-                    <option value="">Dolaptaki Yönü</option>
-                    <option value="Sol Taraf">Sol Taraf</option>
-                    <option value="Sağ Taraf">Sağ Taraf</option>
-                </select>
+        <section id="safakKartal" class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl text-center shadow-lg space-y-2">
+            <p class="text-xs text-zinc-400 font-mono uppercase">🎯 Hedef Şafak Hesaplayıcı</p>
+            <h2 id="safakMetni" class="text-md font-bold text-white">Harçlık ve hedef bilgisi bekleniyor...</h2>
+            <div class="w-full bg-zinc-950 h-2 rounded-full overflow-hidden border border-zinc-800 mt-2">
+                <div id="safakBar" class="bg-lime-400 h-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </section>
 
-                <div class="md:col-span-2">
-                    <label class="block text-xs text-zinc-400 mb-2 font-mono">📸 Kıyafet Fotoğrafı (Çek veya Galeriden Seç)</label>
-                    <input type="file" id="itemFile" accept="image/*" class="w-full text-xs text-zinc-400 bg-zinc-950 border border-zinc-800 rounded-xl p-3 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 cursor-pointer">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl shadow-md">
+                <h3 class="text-sm font-bold text-zinc-400 mb-2">💰 Harçlık Durumu</h3>
+                <div>
+                    <label class="block text-[11px] text-zinc-500 font-mono mb-1">Haftalık Sabit Harçlığın (TL)</label>
+                    <input type="number" id="weeklyIncome" placeholder="Örn: 200" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-2.5 text-sm text-lime-400 font-bold focus:outline-none focus:border-lime-400">
                 </div>
-                
-                <button type="submit" class="bg-white text-zinc-950 font-bold rounded-xl text-sm p-3 hover:bg-zinc-200 transition duration-300 md:col-span-2 cursor-pointer">Buluta Güvenli Kaydet</button>
+            </section>
+
+            <section class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl shadow-md space-y-3">
+                <h3 class="text-sm font-bold text-zinc-400">🎯 Hayalindeki Hedef</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="col-span-2">
+                        <label class="block text-[11px] text-zinc-500 font-mono mb-1">Almak İstediğin Şey</label>
+                        <input type="text" id="targetName" placeholder="Örn: Wraith W60 Keyboard" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-lime-400">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-[11px] text-zinc-500 font-mono mb-1">Hedefin Fiyatı (TL)</label>
+                        <input type="number" id="targetPrice" placeholder="Örn: 2500" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-lime-400">
+                    </div>
+                </div>
+            </section>
+
+            <button id="saveFinanceBtn" class="md:col-span-2 w-full bg-lime-400 text-zinc-950 text-xs font-bold py-3 rounded-xl hover:bg-lime-300 transition cursor-pointer shadow-lg">
+                Hesapla ve Buluta Kaydet
+            </button>
+        </div>
+
+        <section class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl shadow-md">
+            <h3 class="text-sm font-bold text-zinc-400 mb-3">💳 Yeni Abonelik / Üyelik Ekle</h3>
+            <form id="subForm" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input type="text" id="subName" placeholder="Abonelik Adı (Örn: Spotify)" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-zinc-600" required>
+                <input type="number" id="subPrice" placeholder="Aylık Ücret (TL)" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-zinc-600" required>
+                <input type="number" id="subDay" placeholder="Günü (1-31)" min="1" max="31" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-zinc-600" required>
+                <button type="submit" class="sm:col-span-3 bg-zinc-800 border border-zinc-700 text-white font-medium rounded-xl text-sm p-2.5 hover:bg-zinc-700 transition cursor-pointer">Aboneliği Listeye Ekle</button>
             </form>
         </section>
 
-        <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl space-y-6">
-            <h2 class="text-md font-semibold text-zinc-300">🎲 Kombin Seçenekleri</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2 border-b border-zinc-800">
-                <div class="bg-zinc-950 border border-zinc-800 p-4 rounded-xl flex flex-col justify-between items-center text-center">
-                    <p class="text-xs text-zinc-400 font-mono mb-2">Dolaptan tamamen şansa bir tarz seçer</p>
-                    <button id="generateComboBtn" class="w-full bg-zinc-800 border border-zinc-700 text-white text-xs px-4 py-2.5 rounded-lg hover:bg-zinc-700 transition cursor-pointer">
-                        🔀 Rastgele Kombin Yap
-                    </button>
-                </div>
-
-                <div class="bg-zinc-950 border border-zinc-800 p-4 rounded-xl space-y-3">
-                    <p class="text-xs text-zinc-400 font-mono text-center">Kendi üstünü ve altını listeden kendin seç</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <select id="manualUstSelect" class="bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-[11px] text-zinc-300 focus:outline-none">
-                            <option value="">Üst Seç..</option>
-                        </select>
-                        <select id="manualAltSelect" class="bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-[11px] text-zinc-300 focus:outline-none">
-                            <option value="">Alt Seç..</option>
-                        </select>
-                    </div>
-                    <button id="showManualComboBtn" class="w-full bg-white text-zinc-950 text-xs px-4 py-2 rounded-lg font-bold hover:bg-zinc-200 transition cursor-pointer">
-                        ✍️ Seçtiğim Kombini Göster
-                    </button>
-                </div>
-            </div>
-            
-            <div class="w-full flex justify-center">
-                <div id="comboResult" class="hidden w-full max-w-sm flex flex-col items-center">
-                    </div>
-            </div>
+        <section class="space-y-3">
+            <h3 class="text-sm font-bold text-zinc-400">📋 Aktif Aboneliklerin</h3>
+            <div id="subList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
         </section>
 
-        <section class="space-y-4">
-            <h2 class="text-md font-semibold text-zinc-300">📦 Gardırobumuz</h2>
-            <div id="wardrobeGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                <div id="loadingText" class="col-span-full text-center text-zinc-500 text-xs py-4 font-mono">Veriler senkronize ediliyor...</div>
-            </div>
-        </section>
     </main>
 
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyA7o96OrqwYXWby-TH7EPbdoXZo_kKscA",
             authDomain: "akilli-gardirob.firebaseapp.com",
@@ -106,157 +97,147 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const form = document.getElementById("clothingForm");
-        const grid = document.getElementById("wardrobeGrid");
-        const comboBtn = document.getElementById("generateComboBtn");
-        const manualBtn = document.getElementById("showManualComboBtn");
-        const comboResult = document.getElementById("comboResult");
-        const ustSelect = document.getElementById("manualUstSelect");
-        const altSelect = document.getElementById("manualAltSelect");
+        const subForm = document.getElementById("subForm");
+        const subList = document.getElementById("subList");
+        const asistanMesaji = document.getElementById("asistanMesaji");
+        const safakMetni = document.getElementById("safakMetni");
+        const safakBar = document.getElementById("safakBar");
+        const permissionBtn = document.getElementById("permissionBtn");
+        const cloudStatusDot = document.getElementById("cloudStatusDot");
 
-        let allClothes = [];
-        const defaultImg = "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=200&auto=format&fit=crop&q=60";
+        let haftalikHarclik = 0, hedefIsim = "", hedefFiyat = 0, toplamAylikGider = 0;
 
-        // CANLI VERİ ÇEKME - ARTIK TAKILMAZ VE KİLİTLENMEZ
-        db.collection("clothes").onSnapshot((snapshot) => {
-            grid.innerHTML = "";
-            allClothes = [];
-            
-            // Seçim listelerini temizle ve başlık ekle
-            ustSelect.innerHTML = '<option value="">Üst Seç..</option>';
-            altSelect.innerHTML = '<option value="">Alt Seç..</option>';
-            
-            if (snapshot.empty) {
-                grid.innerHTML = `<div class="col-span-full text-center text-zinc-600 text-xs py-8">Gardırop boş kanka. İlk kıyafetini ekle!</div>`;
+        if (Notification.permission === "granted") {
+            permissionBtn.innerText = "🔔 Bildirimler Aktif";
+            permissionBtn.disabled = true;
+        }
+
+        permissionBtn.addEventListener("click", () => {
+            Notification.requestPermission().then(p => {
+                if (p === "granted") {
+                    permissionBtn.innerText = "🔔 Bildirimler Aktif";
+                    permissionBtn.disabled = true;
+                    new Notification("Tami Asistan", { body: "Sistem aktif kanka!" });
+                }
+            });
+        });
+
+        function hesaplaVeRaporla() {
+            if (haftalikHarclik <= 0 || hedefFiyat <= 0) {
+                safakMetni.innerHTML = "💡 <span class='text-zinc-400'>Lütfen bilgileri girip 'Hesapla ve Buluta Kaydet' butonuna bas kanka!</span>";
+                safakBar.style.width = "0%";
+                return;
+            }
+            const aylikKazanc = haftalikHarclik * 4.33;
+            const aylikNetBiriken = aylikKazanc - toplamAylikGider;
+
+            if (aylikNetBiriken <= 0) {
+                safakMetni.innerHTML = `❌ <span class='text-red-400 font-bold'>Abonelik giderlerin harçlığını geçiyor!</span>`;
+                safakBar.style.width = "0%";
                 return;
             }
 
-            snapshot.forEach((doc) => {
-                const item = doc.data();
-                const id = doc.id;
-                
-                // Objenin içine id bilgisini de enjekte ediyoruz
-                const itemWithId = { id, ...item };
-                allClothes.push(itemWithId);
+            const gerekenAy = hedefFiyat / aylikNetBiriken;
+            const toplamKalanGun = Math.ceil(gerekenAy * 30);
+            const kalanHafta = Math.floor(toplamKalanGun / 7);
+            const kalanGunMod = toplamKalanGun % 7;
 
-                // Manuel Kombin Seçim Listelerine ekleme yapma
-                if (item.category === "Üst Giyim") {
-                    ustSelect.innerHTML += `<option value="${id}">${item.name}</option>`;
-                } else if (item.category === "Alt Giyim") {
-                    altSelect.innerHTML += `<option value="${id}">${item.name}</option>`;
-                }
-
-                // Ana Gardırop Kartları
-                const card = document.createElement("div");
-                card.className = "bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex flex-col justify-between shadow-md";
-                card.innerHTML = `
-                    <div class="space-y-2">
-                        <img src="${item.image || defaultImg}" class="w-full h-28 object-cover rounded-lg bg-zinc-950 border border-zinc-800">
-                        <div class="flex gap-1 flex-wrap">
-                            <span class="text-[8px] font-mono bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded">${item.category}</span>
-                            <span class="text-[8px] font-mono bg-zinc-950 text-amber-400 border border-zinc-800 px-1.5 py-0.5 rounded">Raf ${item.shelf}</span>
-                        </div>
-                        <h3 class="text-xs font-medium text-white truncate">${item.name}</h3>
-                    </div>
-                    <button onclick="deleteItem('${id}')" class="mt-3 text-[10px] text-zinc-500 hover:text-red-400 text-left cursor-pointer w-fit">🗑️ Sil</button>
-                `;
-                grid.appendChild(card);
-            });
-        }, (error) => {
-            console.error("Bulut okuma hatası:", error);
-        });
-
-        // GÜVENLİ VE HIZLI KAYIT
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const name = document.getElementById("itemName").value;
-            const category = document.getElementById("itemCategory").value;
-            const shelf = document.getElementById("itemShelf").value;
-            const position = document.getElementById("itemPosition").value;
-            const fileInput = document.getElementById("itemFile");
-
-            let imageData = defaultImg;
-
-            if (fileInput.files && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                const convertToBase64 = (file) => new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                });
-                
-                try { imageData = await convertToBase64(file); } catch (e) {}
-            }
-
-            try {
-                await db.collection("clothes").add({
-                    name, category, shelf, position, image: imageData,
-                    createdAt: new Date().getTime() // Döngüyü kıran stabil milisaniye çözümü
-                });
-                form.reset();
-            } catch (error) {
-                alert("Kayıt hatası kanka!");
-            }
-        });
-
-        // SİLME
-        window.deleteItem = async (id) => {
-            if(confirm("Silinsin mi kanka?")) {
-                await db.collection("clothes").doc(id).delete();
-            }
-        };
-
-        // KOMBİN ŞABLONU OLUŞTURUCU (ORTAK FONKSİYON)
-        function renderComboHtml(ust, alt, baslik) {
-            comboResult.innerHTML = `
-                <div class="w-full text-zinc-400 text-[10px] font-bold uppercase tracking-wider mb-2 text-center">${baslik}</div>
-                <div class="w-full flex flex-col">
-                    <div class="w-full flex items-center bg-zinc-900 border border-zinc-800 rounded-t-xl p-2">
-                        <img src="${ust.image || defaultImg}" class="w-12 h-12 object-cover rounded-md bg-zinc-950 border border-zinc-800 flex-shrink-0">
-                        <div class="ml-3 flex flex-col justify-center leading-tight">
-                            <span class="text-[11px] font-bold text-white">${ust.name}</span>
-                            <span class="text-[9px] text-zinc-500 font-mono">Konum: Raf ${ust.shelf} (${ust.position})</span>
-                        </div>
-                    </div>
-                    <div class="w-full flex items-center bg-zinc-900 border-x border-b border-zinc-800 rounded-b-xl p-2">
-                        <img src="${alt.image || defaultImg}" class="w-12 h-12 object-cover rounded-md bg-zinc-950 border border-zinc-800 flex-shrink-0">
-                        <div class="ml-3 flex flex-col justify-center leading-tight">
-                            <span class="text-[11px] font-bold text-white">${alt.name}</span>
-                            <span class="text-[9px] text-zinc-500 font-mono">Konum: Raf ${alt.shelf} (${alt.position})</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            comboResult.classList.remove("hidden");
+            safakMetni.innerHTML = `🎯 <span class='text-lime-400 font-bold'>${hedefIsim}</span> için gereken süre:<br><span class='text-xl font-black text-white block my-1'>${kalanHafta} Hafta ${kalanGunMod} Gün</span>`;
+            const yuzde = Math.min(100, Math.max(10, (100 - (kalanHafta * 2))));
+            safakBar.style.width = `${yuzde}%`;
         }
 
-        // 1. RASTGELE KOMBİN BUTONU
-        comboBtn.addEventListener("click", () => {
-            if (allClothes.length === 0) return alert("Gardırop boş!");
-            const ustler = allClothes.filter(c => c.category === "Üst Giyim");
-            const altlar = allClothes.filter(c => c.category === "Alt Giyim");
+        function verileriYukle() {
+            cloudStatusDot.className = "w-3 h-3 bg-lime-400 rounded-full";
+            asistanMesaji.innerHTML = `✅ <span class="text-lime-400 font-bold">Bulut Aktif.</span> Önümüzdeki 24 saat içinde çekilecek acil bir abonelik ödemen bulunmuyor kanka.`;
 
-            if (ustler.length === 0 || altlar.length === 0) return alert("En az 1 Üst ve 1 Alt lazım!");
+            db.collection("user_finance").doc("tami_user").get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById("weeklyIncome").value = data.weeklyIncome || "";
+                    document.getElementById("targetName").value = data.targetName || "";
+                    document.getElementById("targetPrice").value = data.targetPrice || "";
+                    haftalikHarclik = Number(data.weeklyIncome) || 0;
+                    hedefIsim = data.targetName || "";
+                    hedefFiyat = Number(data.targetPrice) || 0;
+                    hesaplaVeRaporla();
+                }
+            }).catch(e => console.log("Finans yükleme pas geçildi, ilk kayıt bekleniyor."));
 
-            const secilenUst = ustler[Math.floor(Math.random() * ustler.length)];
-            const secilenAlt = altlar[Math.floor(Math.random() * altlar.length)];
+            db.collection("subscriptions").onSnapshot((snapshot) => {
+                subList.innerHTML = "";
+                toplamAylikGider = 0;
+                let yaklasanOdemeler = [];
+                const guncelGun = new Date().getDate();
 
-            renderComboHtml(secilenUst, secilenAlt, "🎲 GÜNÜN RASTGELE STİLİ");
+                snapshot.forEach((doc) => {
+                    const sub = doc.data();
+                    toplamAylikGider += Number(sub.price);
+                    let kalanGun = sub.day - guncelGun;
+                    if (kalanGun < 0) kalanGun = (30 - guncelGun) + Number(sub.day);
+
+                    if (kalanGun === 1) {
+                        yaklasanOdemeler.push(sub.name);
+                        if (Notification.permission === "granted") {
+                            new Notification("⚠️ ÖDEME HATIRLATMASI!", { body: `Yarın ${sub.name} günü!` });
+                        }
+                    }
+
+                    const card = document.createElement("div");
+                    card.className = "bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex justify-between items-center";
+                    card.innerHTML = `
+                        <div>
+                            <h4 class="text-xs font-bold text-white font-mono uppercase">${sub.name}</h4>
+                            <p class="text-[11px] text-zinc-500">Ücret: ${sub.price} TL | Gün: ${sub.day}</p>
+                            <span class="text-[9px] ${kalanGun <= 3 ? 'text-red-400 bg-red-400/10' : 'text-zinc-400 bg-zinc-950'} px-2 py-0.5 rounded font-mono inline-block mt-1">⏳ ${kalanGun} gün kaldı</span>
+                        </div>
+                        <button onclick="deleteSub('${doc.id}')" class="text-xs text-zinc-600 hover:text-red-400 cursor-pointer p-1">🗑️</button>
+                    `;
+                    subList.appendChild(card);
+                });
+
+                if (yaklasanOdemeler.length > 0) {
+                    asistanMesaji.innerHTML = `⚠️ <span class="text-red-400 font-bold">DİKKAT!</span> Yarın ödemesi olanlar: <span class="text-white">${yaklasanOdemeler.join(", ")}</span>`;
+                }
+                hesaplaVeRaporla();
+            });
+        }
+
+        document.getElementById("saveFinanceBtn").addEventListener("click", async () => {
+            const w = document.getElementById("weeklyIncome").value;
+            const tn = document.getElementById("targetName").value;
+            const tp = document.getElementById("targetPrice").value;
+
+            haftalikHarclik = Number(w);
+            hedefIsim = tn;
+            hedefFiyat = Number(tp);
+            hesaplaVeRaporla();
+
+            try {
+                await db.collection("user_finance").doc("tami_user").set({ weeklyIncome: haftalikHarclik, targetName: hedefIsim, targetPrice: hedefFiyat });
+                alert("Veriler eşitlendi kanka! 🚀");
+            } catch (e) {
+                console.log("Bulut kaydı lokal çalışıyor.");
+            }
         });
 
-        // 2. MANUEL KENDİN SEÇ KOMBİN BUTONU
-        manualBtn.addEventListener("click", () => {
-            const selectedUstId = ustSelect.value;
-            const selectedAltId = altSelect.value;
+        subForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const n = document.getElementById("subName").value;
+            const p = document.getElementById("subPrice").value;
+            const d = document.getElementById("subDay").value;
 
-            if (!selectedUstId || !selectedAltId) return alert("Lütfen listeden hem bir Üst hem de bir Alt kıyafet seç kanka!");
-
-            const secilenUst = allClothes.find(c => c.id === selectedUstId);
-            const secilenAlt = allClothes.find(c => c.id === selectedAltId);
-
-            renderComboHtml(secilenUst, secilenAlt, "✍️ SENİN OLUŞTURDUĞUN STİL");
+            try {
+                await db.collection("subscriptions").add({ name: n, price: Number(p), day: Number(d) });
+                subForm.reset();
+            } catch (error) { alert("Hata oluştu kanka!"); }
         });
+
+        window.deleteSub = async (id) => {
+            if(confirm("Silinsin mi kanka?")) await db.collection("subscriptions").doc(id).delete();
+        };
+
+        window.onload = verileriYukle;
     </script>
 </body>
 </html>
