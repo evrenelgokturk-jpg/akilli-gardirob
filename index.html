@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akıllı Gardırop v2.0 - Cloud</title>
+    <title>Akıllı Gardırop v2.5 - Full Cloud</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -11,18 +11,20 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen pb-12">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen pb-16">
 
     <header class="border-b border-zinc-800 sticky top-0 bg-zinc-950/80 backdrop-blur-md z-50 px-6 py-4 flex justify-between items-center">
         <h1 class="text-xl font-bold tracking-wider uppercase text-white">AKILLI GARDIROP</h1>
-        <span class="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full font-mono border border-emerald-500/20">Bulut Aktif</span>
+        <span class="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full font-mono border border-emerald-500/20 animate-pulse">● Bulut Senkronize</span>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 mt-8 space-y-8">
+    <main class="max-w-5xl mx-auto px-4 mt-8 space-y-8">
+        
         <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl">
             <h2 class="text-lg font-semibold mb-4 text-zinc-300 flex items-center gap-2">✨ Yeni Kıyafet Ekle</h2>
-            <form id="clothingForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" id="itemName" placeholder="Kıyafet Adı (Örn: Siyah Zara Tişört)" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-zinc-600 transition" required>
+            <form id="clothingForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <input type="text" id="itemName" placeholder="Kıyafet Adı (Örn: Siyah Zara Tişört)" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-zinc-600 transition lg:col-span-1" required>
+                
                 <select id="itemCategory" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-zinc-600 transition" required>
                     <option value="">Kategori Seçin</option>
                     <option value="Üst Giyim">Üst Giyim</option>
@@ -30,20 +32,40 @@
                     <option value="Dış Giyim">Dış Giyim</option>
                     <option value="Ayakkabı">Ayakkabı</option>
                 </select>
-                <button type="submit" class="bg-white text-zinc-950 font-medium rounded-xl text-sm p-3 hover:bg-zinc-200 transition duration-300 shadow-md cursor-pointer">Buluta Kaydet</button>
+
+                <input type="number" id="itemShelf" placeholder="Raf No (Örn: 3)" min="1" max="10" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-zinc-600 transition" required>
+
+                <select id="itemPosition" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:outline-none focus:border-zinc-600 transition" required>
+                    <option value="">Konum Seçin</option>
+                    <option value="Sol Taraf">Sol Taraf</option>
+                    <option value="Sağ Taraf">Sağ Taraf</option>
+                </select>
+                
+                <button type="submit" class="bg-white text-zinc-950 font-medium rounded-xl text-sm p-3 hover:bg-zinc-200 transition duration-300 shadow-md cursor-pointer font-semibold">Buluta Kaydet</button>
             </form>
+        </section>
+
+        <section class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="text-lg font-semibold mb-4 text-zinc-300 flex items-center gap-2">🎲 Günün Kombini</h2>
+            <div class="flex flex-col sm:flex-row gap-4 items-center">
+                <button id="generateComboBtn" class="w-full sm:w-auto bg-zinc-800 border border-zinc-700 text-white font-medium rounded-xl text-sm px-6 py-3 hover:bg-zinc-700 transition cursor-pointer">
+                    🔀 Rastgele Kombin Yap
+                </button>
+                <div id="comboResult" class="hidden flex-1 bg-zinc-950 border border-zinc-800 p-4 rounded-xl text-sm text-zinc-400 font-mono">
+                    </div>
+            </div>
         </section>
 
         <section class="space-y-4">
             <h2 class="text-lg font-semibold text-zinc-300 flex items-center gap-2">📦 Gardırobumuz</h2>
-            <div id="wardrobeGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div id="wardrobeGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <div id="loadingText" class="col-span-full text-center text-zinc-500 text-sm py-8 font-mono">Buluttan veriler senkronize ediliyor...</div>
             </div>
         </section>
     </main>
 
     <script>
-        // Senin Firebase Sihirli Config Bilgilerin
+        // Firebase Sihirli Config Bilgileri
         const firebaseConfig = {
             apiKey: "AIzaSyA7o96OrqwYXWby-TH7EPbdoXZo_kKscA",
             authDomain: "akilli-gardirob.firebaseapp.com",
@@ -61,10 +83,17 @@
         // Elemanlar
         const form = document.getElementById("clothingForm");
         const grid = document.getElementById("wardrobeGrid");
+        const comboBtn = document.getElementById("generateComboBtn");
+        const comboResult = document.getElementById("comboResult");
+
+        // Tüm kıyafetleri hafızada tutmak için dizi (Kombin yaparken kullanacağız)
+        let allClothes = [];
 
         // BULUTTAN VERİLERİ CANLI ÇEKME
         db.collection("clothes").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
             grid.innerHTML = "";
+            allClothes = []; // Kombin havuzunu sıfırla
+            
             if (snapshot.empty) {
                 grid.innerHTML = `<div class="col-span-full text-center text-zinc-600 text-sm py-8">Gardırop şu an boş. İlk kıyafetini ekle!</div>`;
                 return;
@@ -73,16 +102,23 @@
             snapshot.forEach((doc) => {
                 const item = doc.data();
                 const id = doc.id;
+                
+                // Kombin için hafızaya at
+                allClothes.push(item);
 
                 const card = document.createElement("div");
                 card.className = "bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex flex-col justify-between group relative overflow-hidden transition hover:border-zinc-700 shadow-md";
                 card.innerHTML = `
-                    <div>
-                        <span class="text-[10px] uppercase font-mono tracking-wider bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-md">${item.category || 'Belirsiz'}</span>
-                        <h3 class="text-sm font-medium text-white mt-2 break-all">${item.name}</h3>
+                    <div class="space-y-2">
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-[9px] uppercase font-mono tracking-wider bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-md">${item.category || 'Belirsiz'}</span>
+                            <span class="text-[9px] uppercase font-mono tracking-wider bg-zinc-950 text-amber-400 border border-zinc-800 px-2 py-0.5 rounded-md">Raf ${item.shelf || '-'}</span>
+                            <span class="text-[9px] uppercase font-mono tracking-wider bg-zinc-950 text-blue-400 border border-zinc-800 px-2 py-0.5 rounded-md">${item.position || '-'}</span>
+                        </div>
+                        <h3 class="text-sm font-medium text-white break-all pt-1">${item.name}</h3>
                     </div>
-                    <button onclick="deleteItem('${id}')" class="mt-4 text-xs text-zinc-500 hover:text-red-400 transition text-left cursor-pointer flex items-center gap-1">
-                        🗑️ Sil
+                    <button onclick="deleteItem('${id}')" class="mt-4 text-[11px] text-zinc-500 hover:text-red-400 transition text-left cursor-pointer flex items-center gap-1">
+                        🗑️ Kıyafeti Sil
                     </button>
                 `;
                 grid.appendChild(card);
@@ -96,11 +132,15 @@
             e.preventDefault();
             const name = document.getElementById("itemName").value;
             const category = document.getElementById("itemCategory").value;
+            const shelf = document.getElementById("itemShelf").value;
+            const position = document.getElementById("itemPosition").value;
 
             try {
                 await db.collection("clothes").add({
                     name: name,
                     category: category,
+                    shelf: shelf,
+                    position: position,
                     createdAt: new Date().getTime()
                 });
                 form.reset();
@@ -112,7 +152,7 @@
 
         // BULUTTAN VERİ SİLME
         window.deleteItem = async (id) => {
-            if(confirm("Bu kıyafeti silmek istediğine emin misin?")) {
+            if(confirm("Bu kıyafeti silmek istediğine emin misin kanka?")) {
                 try {
                     await db.collection("clothes").doc(id).delete();
                 } catch (error) {
@@ -120,6 +160,48 @@
                 }
             }
         };
+
+        // AKILLI BULUT KOMBİN YAPICI
+        comboBtn.addEventListener("click", () => {
+            if (allClothes.length === 0) {
+                alert("Önce gardıroba biraz kıyafet ekle kanka!");
+                return;
+            }
+
+            // Kategorilere göre ayır
+            const ustler = allClothes.filter(c => c.category === "Üst Giyim");
+            const altlar = allClothes.filter(c => c.category === "Alt Giyim");
+            const dislar = allClothes.filter(c => c.category === "Dış Giyim");
+            const ayakkabilar = allClothes.filter(c => c.category === "Ayakkabı");
+
+            if (ustler.length === 0 || altlar.length === 0) {
+                alert("Kombin yapabilmem için en az 1 Üst Giyim ve 1 Alt Giyim eklemelisin kanka!");
+                return;
+            }
+
+            // Rastgele seçiciler
+            const secilenUst = ustler[Math.floor(Math.random() * ustler.length)];
+            const secilenAlt = altlar[Math.floor(Math.random() * altlar.length)];
+            const secilenDis = dislar.length > 0 ? dislar[Math.floor(Math.random() * dislar.length)] : null;
+            const secilenAyakkabi = ayakkabilar.length > 0 ? ayakkabilar[Math.floor(Math.random() * ayakkabilar.length)] : null;
+
+            // HTML Sonucu Oluşturma
+            let htmlResult = `<div class="space-y-1">`;
+            htmlResult += `<p class="text-white font-semibold mb-2">👕 BUGÜNKÜ STİLİN:</p>`;
+            htmlResult += `<p>• <span class="text-zinc-200">${secilenUst.name}</span> <span class="text-xs text-zinc-500">(Raf ${secilenUst.shelf}, ${secilenUst.position})</span></p>`;
+            htmlResult += `<p>• <span class="text-zinc-200">${secilenAlt.name}</span> <span class="text-xs text-zinc-500">(Raf ${secilenAlt.shelf}, ${secilenAlt.position})</span></p>`;
+            
+            if (secilenDis) {
+                htmlResult += `<p>• <span class="text-zinc-200">${secilenDis.name}</span> <span class="text-xs text-zinc-500">(Raf ${secilenDis.shelf}, ${secilenDis.position})</span></p>`;
+            }
+            if (secilenAyakkabi) {
+                htmlResult += `<p>• <span class="text-zinc-200">${secilenAyakkabi.name}</span> <span class="text-xs text-zinc-500">(Raf ${secilenAyakkabi.shelf}, ${secilenAyakkabi.position})</span></p>`;
+            }
+            htmlResult += `</div>`;
+
+            comboResult.innerHTML = htmlResult;
+            comboResult.classList.remove("hidden");
+        });
     </script>
 </body>
-</html> 
+</html>
